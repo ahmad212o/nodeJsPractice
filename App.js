@@ -1,30 +1,29 @@
+const path = require("path");
 
-const path = require('path');
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const multer = require("multer");
 
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const multer = require('multer');
-
-const feedRoutes = require('./Routers/feed');
-const authRoutes = require('./Routers/auth');
+const feedRoutes = require("./Routers/feed");
+const authRoutes = require("./Routers/auth");
 
 const app = express();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, new Date().toISOString() + '-' + file.originalname);
-  }
+    cb(null, new Date().toISOString() + "-" + file.originalname);
+  },
 });
 
 const fileFilter = (req, file, cb) => {
   if (
-    file.mimetype === 'image/png' ||
-    file.mimetype === 'image/jpg' ||
-    file.mimetype === 'image/jpeg'
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
   ) {
     cb(null, true);
   } else {
@@ -35,32 +34,36 @@ const fileFilter = (req, file, cb) => {
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use((req, res, next) => {
- res.setHeader('Access-Control-Allow-Origin', '*');
-res.setHeader('Access-Control-Allow-Methods',
-    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
-);
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "OPTIONS, GET, POST, PUT, PATCH, DELETE"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
 
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
+app.use("/feed", feedRoutes);
+app.use("/auth", authRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error.data;
+
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
-  .connect('mongodb+srv://ahmad:OBnDOmoWp6JJhtot@cluster0.qxtb7.mongodb.net/ahmad?retryWrites=true&w=majority'
+  .connect(
+    "mongodb+srv://ahmad:xoRKsO4O2w05US2F@cluster0.qxtb7.mongodb.net/ahmad?retryWrites=true&w=majority"
   )
-  .then(result => {
+  .then((result) => {
     app.listen(3000);
   })
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
