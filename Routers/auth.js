@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require("express-validator");
 const User = require("../models/user");
 const authController = require("../controllers/auth");
-
+const isAuth = require("../middleware/is-auth");
 router.put(
   "/signup",
   [
@@ -13,7 +13,7 @@ router.put(
       .custom((value, { req }) => {
         return User.findOne({ email: value }).then((userDoc) => {
           if (userDoc) {
-            return Promise.reject("eamil address already exists ");
+            return Promise.reject("email address already exists ");
           }
         });
       })
@@ -25,5 +25,8 @@ router.put(
 );
 
 router.post("/login", authController.login);
+router.get("/status", isAuth, authController.getStatus);
+router.patch("/status", isAuth, authController.updateUserStatus);
+
 
 module.exports = router;
