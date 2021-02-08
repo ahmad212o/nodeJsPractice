@@ -4,12 +4,12 @@ const path = require("path");
 const { validationResult } = require("express-validator");
 
 const Post = require("../models/post");
-
+const User = require("../models/user");
 exports.getPosts = async (req, res, next) => {
   try {
     const totalItems = await Post.find().countDocuments();
     const posts = await Post.find();
-    await populate("creator");
+
     res.status(200).json({
       message: "Fetched posts successfully.",
       posts: posts,
@@ -30,6 +30,7 @@ exports.createPost = async (req, res, next) => {
     error.statusCode = 422;
     throw error;
   }
+
   if (!req.file) {
     const error = new Error("No image provided.");
     error.statusCode = 422;
@@ -46,7 +47,7 @@ exports.createPost = async (req, res, next) => {
     creator: req.userId,
   });
   try {
-    const newPost = await post.save();
+    await post.save();
     const user = await User.findById(req.userId);
     user.posts.push(post);
     await user.save();

@@ -9,10 +9,9 @@ const feedRoutes = require("./Routers/feed");
 const authRoutes = require("./Routers/auth");
 
 const app = express();
-
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, __basedir + "images");
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
     cb(null, new Date().toISOString() + "-" + file.originalname);
@@ -34,7 +33,7 @@ const fileFilter = (req, file, cb) => {
 // app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("file")
 );
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use((req, res, next) => {
@@ -43,7 +42,7 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
   );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
   next();
 });
 
